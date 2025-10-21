@@ -1,0 +1,75 @@
+# ----------------------------------------
+# Deployment: serves the static HTML page
+# ----------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ingress-health
+  namespace: expense
+  labels:
+    app: ingress-health
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ingress-health
+  template:
+    metadata:
+      labels:
+        app: ingress-health
+    spec:
+      containers:
+      - name: ingress-health
+        image: srikanthhg/ingress-health-checker:v1
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+---
+# ----------------------------------------
+# Service: exposes via LoadBalancer (external IP)
+# ----------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingress-health
+  namespace: expense
+  labels:
+    app: ingress-health
+spec:
+  type: LoadBalancer
+  selector:
+    app: ingress-health
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+    protocol: TCP
+---
+# ----------------------------------------
+# Ingress: optional, for normal use through ingress controller
+# ----------------------------------------
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-health
+  namespace: expense
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+  - host: ingress-health.<your-domain>.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: ingress-health
+            port:
+              number: 80
