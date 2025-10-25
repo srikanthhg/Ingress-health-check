@@ -70,6 +70,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: my-ingress-nginx-controller
+            name: ingress-health
             port:
               number: 80
