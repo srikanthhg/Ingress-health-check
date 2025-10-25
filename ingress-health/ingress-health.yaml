@@ -63,7 +63,7 @@ metadata:
     kubernetes.io/ingress.class: nginx
 spec:
   rules:
-  - host: ingress-health.<your-domain>.com
+  - host: ingress-health.skanth306.shop
     http:
       paths:
       - path: /
